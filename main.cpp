@@ -72,13 +72,6 @@
 
 
 
-/************************************************************************/
-/*                   CS5463 Maximum Current Value for MAX5483           */
-/************************************************************************/
-#define LMV							78			//Least Meaningful Value for MAX5483 at 7.04 VDC
-#define MMV							100			//Most Meaningful Value for MAX5483
-#define TWO_UP_TWENTY_FOUR			16777216	// 2^24
-#define DIFFERENCE					round(TWO_UP_TWENTY_FOUR / (LMV))	//Determining Interval for CS5463
 
 
 
@@ -232,6 +225,13 @@ void Cs5463_SetUp()
 	PORTA |= (1<<rst_cs5463); // Set high CS5460 RESET Pin Out
 	_delay_us(0.1);
 	
+	
+	
+	//Slave Selection enable
+	PORTA |= (1<<ss_cs5463); //Set High CS5463 CS Pin
+	_delay_us(0.1);
+	PORTA &= ~(1<<ss_cs5463); //Set Low CS5463 CS Pin
+	_delay_us(0.1);
 	
 	/************************************************************************/
 	/*			Start Sending Sync Commands (IMPORTANT!!!)                  */
@@ -597,14 +597,15 @@ uint32_t SPI_CS5463_Read_Write(uint8_t data)
 void SPISetUpSoftware()
 {
 	//Set all outputs
-	DDRA |= (1<<DDA1) | (1<<DDA2) | (1<<DDA3) | (1<<DDA4) | (1<<DDA6);
+	DDRA |= (1<<DDA1) | (1<<DDA2) | (1<<DDA3) | (1<<DDA4) | (1<<DDA6) | (1<<DDA7);
 	DDRB |= (1<<DDB0) | (1<<DDB1);
 	
 	//Set all Inputs
 	DDRA &= ~(1<<DDA5);
-	DDRA &= ~(1<<DDA7);
+	
+	//Set Pin and Ports
 	PORTA &= ~(1<<di_cs5463);
-	PORTA |=  (1<<do_cs5463) | (1<<clk_cs5463) | (1<<rst_cs5463);
+	PORTA |=  (1<<do_cs5463) | (1<<clk_cs5463) | (1<<rst_cs5463) | (1<<ss_cs5463);
 	
 	
 }
